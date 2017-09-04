@@ -1,0 +1,564 @@
+#+STARTUP: hidestars
+
+* INFORMATION
+  #+begin_src emacs-lisp
+(setq user-full-name "WALID LAARAKI"
+      user-mail-address "wlaaraki@gmail.com"
+      user-home-directory (concat (getenv "HOME")"/")
+      user-emacs-directory (concat user-home-directory ".emacs.d/")
+      custom-file (expand-file-name "custom.el" user-emacs-directory))
+(load custom-file)
+  #+end_src
+* INTERFACE
+** THEMES
+*** ZENBURN
+    #+begin_src emacs-lisp
+(use-package zenburn-theme
+  :ensure t
+  :pin melpa
+  :config
+  (load-theme 'zenburn t))
+    #+end_src
+** FONTS
+   #+begin_src emacs-lisp
+(set-face-attribute 'default nil
+		    :family "Monospace" :height 120)
+(set-face-attribute 'variable-pitch nil
+		    :family "Sans" :height 120)
+(global-font-lock-mode 1)
+   #+end_src
+** VISUAL
+   #+begin_src emacs-lisp
+(defalias 'yes-or-no-p 'y-or-n-p)
+(setq-default truncate-lines 1
+	      cursor-in-non-selected-windows nil)
+(setq echo-keystrokes 0.1
+      scroll-step 1
+      frame-resize-pixelwise t
+      mouse-wheel-scroll-amount '(1 ((shift) . 1))
+      mouse-wheel-progressive-speed nil
+      visible-bell t
+      blink-matching-paren t
+      show-paren-delay 0
+      show-paren-style 'expression
+      truncate-partial-width-windows 1
+      frame-title-format "EMACS"
+      icon-title-format frame-title-format)
+(show-paren-mode t)
+(blink-cursor-mode -1)
+(column-number-mode 1)
+(global-hl-line-mode 1)
+(toggle-indicate-empty-lines 1)
+(diminish 'visual-line-mode)
+(global-set-key (kbd "C-+") 'text-scale-increase)
+(global-set-key (kbd "C--") 'text-scale-decrease)
+
+   #+end_src
+* BEHAVIOR
+** MY FUNCTIONS
+   #+begin_src emacs-lisp
+(defun glen/toggle-comments ()
+  "Toggle comments on line or region"
+  (interactive)
+  (let (beg end)
+    (if (region-active-p)
+	(setq beg (region-beginning) end (region-end))
+      (setq beg (line-beginning-position) end (line-end-position)))
+    (comment-or-uncomment-region beg end)))
+(defun glen/org-capture-prompt (prompt variable)
+  "PROMPT for string, save it to VARIABLE and insert it."
+  (make-local-variable variable)
+  (read-string (concat prompt ": ") nil))
+   #+end_src
+** GENERAL
+   #+begin_src emacs-lisp
+(setq grep-command "grep -nHor --exclude-dir={assets,*\bower_components,\*node_modules} ctrl "
+      backup-directory-alist '(("." . "~/.emacs.d/backups"))
+      delete-old-versions -1
+      version-control t
+      vc-make-backup-files t
+      auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save-list/" t))
+      savehist-file "~/.emacs.d/savehist"
+      history-length t
+      history-delete-duplicates t
+      savehist-additional-variables '(kill-ring search-ring regexp-search-ring)
+      locale-coding-system 'utf-8
+      indent-tabs-mode nil
+      sentence-end-double-space nil)
+(savehist-mode 1)
+(icomplete-mode -1)
+(electric-pair-mode 1)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(set-selection-coding-system 'utf-8)
+(prefer-coding-system 'utf-8)
+(delete-selection-mode t)
+(global-auto-revert-mode t)
+   #+end_src
+** GLOBAL KEY BINDINGS
+   #+begin_src emacs-lisp
+;; ORG
+(global-set-key (kbd "C-c c") 'org-capture)
+(global-set-key (kbd "C-c a") 'org-agenda)
+(global-set-key (kbd "C-c b") 'org-iswitchb)
+;; ESHELL
+(global-set-key (kbd "C-x m") 'eshell)
+(global-set-key (kbd "C-x M") (lambda () (interactive) (eshell t)))
+;; IBUFFER
+(global-set-key (kbd "C-x C-b") 'ibuffer)
+   #+end_src
+* PACKAGES
+** GNU
+*** DIRED
+    #+begin_src emacs-lisp
+(setq trash-directory (concat user-home-directory "trash")
+      delete-by-moving-to-trash t
+      dired-listing-switches "-aFlGXh1v --group-directories-first"
+      global-auto-revert-non-file-buffers t
+      auto-revert-verbose nil)
+(add-hook 'dired-mode-hook (lambda () (visual-line-mode -1)))
+    #+end_src
+*** TRAMP
+    #+begin_src emacs-lisp
+(set-default 'tramp-default-proxies-alist (quote ((".*" "\\`root\\'" "/ssh:%h:"))))
+    #+end_src
+*** IBUFFER
+    #+begin_src emacs-lisp
+(setq ibuffer-default-sorting-mode 'major-mode
+      ibuffer-movement-cycle nil
+      ibuffer-never-show-predicates '("^\\*helm")
+      savehist-save-minibuffer-history 1
+      ibuffer-show-empty-filter-groups nil
+      ibuffer-saved-filter-groups
+      (quote (("default"
+	       ("dired" (mode . dired-mode))
+	       ("web" (or
+		       (mode . js2-mode)
+		       (mode . restclient-mode)
+		       (mode . web-mode)
+		       (mode . php-mode)
+		       (mode . css-mode)))
+	       ("erc" (mode . erc-mode))
+	       ("org" (mode . org-mode))
+	       ("images" (mode . image-mode))
+	       ("help" (or
+			(name . "^\\*Help\\*$")
+			(name . "^\\*Apropos\\*$")
+			(name . "^\\*info\\*$")))
+	       ("emacs" (or
+			 (name . "^\\*Edit Macro\\*$")
+			 (name . "^\\*scratch\\*$")
+			 (name . "^\\*Messages\\*$")))
+	       ("gnus" (or
+			(mode . message-mode)
+			(mode . bbdb-mode)
+			(mode . mail-mode)
+			(mode . gnus-group-mode)
+			(mode . gnus-summary-mode)
+			(mode . gnus-article-mode)
+			(name . "^\\.bbdb$")
+			(name . "^\\.newsrc-dribble")))))))
+(add-hook 'ibuffer-mode-hook
+	  (lambda ()
+	    (ibuffer-auto-mode 1)
+	    (ibuffer-switch-to-saved-filter-groups "default")))
+    #+end_src
+*** ISPELL
+    #+begin_src emacs-lisp
+(use-package ispell
+  :if (not (bound-and-true-p disable-pkg-ispell))
+  :defer t
+  :config
+  (progn
+    (when (executable-find "aspell")
+      (setq ispell-program-name "aspell"
+	    ispell-extra-args '("--sug-mode=ultra" "--lang=en_US")
+	    ispell-silently-savep t))))
+    #+end_src
+*** FLYSPELL
+    #+begin_src emacs-lisp
+(use-package flyspell
+  :diminish flyspell-mode
+  :init
+  (progn
+    (add-hook 'prog-mode-hook 'flyspell-prog-mode)
+    (add-hook 'text-mode-hook 'turn-on-flyspell)
+    (add-hook 'org-mode-hook  'turn-on-flyspell))
+  :config
+  (progn
+    (setq flyspell-use-meta-tab nil
+	  flyspell-auto-correct-binding (kbd "C-x a c"))))
+    #+end_src
+*** ESHELL
+    #+begin_src emacs-lisp
+(add-hook 'eshell-mode-hook (lambda () (setenv "PAGER" "cat") (setenv "EDITOR" "emacsclient")))
+    #+end_src
+*** ELDOC
+    #+begin_src emacs-lisp
+(use-package eldoc
+  :diminish eldoc-mode
+  :commands turn-on-eldoc-mode
+  :init
+  (progn
+    (add-hook 'emacs-lisp-mode-hook 'eldoc-mode)
+    (add-hook 'lisp-interaction-mode-hook 'eldoc-mode)
+    (add-hook 'ielm-mode-hook 'eldoc-mode)))
+    #+end_src
+*** GNUS
+    #+begin_src emacs-lisp
+(setq gnus-select-method '(nnimap "gmail"
+				  (nnimap-address "imap.gmail.com")
+				  (nnimap-server-port "imaps")
+				  (nnimap-stream ssl))
+      gnus-secondary-select-methods '((nnimap "id2tel"
+					      (nnimap-address "imap.gmail.com")
+					      (nnimap-server-port "imaps")
+					      (nnimap-stream ssl)))
+      mm-discouraged-alternatives '("text/richtext")
+      mm-text-html-renderer 'gnus-w3m)
+(setq smtpmail-default-smtp-server "smtp.gmail.com"
+      smtpmail-smtp-server "smtp.gmail.com"
+      smtpmail-stream-type  'ssl
+      smtpmail-smtp-service 465
+      send-mail-function 'smtpmail-send-it
+      message-send-mail-function 'smtpmail-send-it)
+    #+end_src
+*** MAGIT
+    #+begin_src emacs-lisp
+     (global-set-key (kbd "C-x g") 'magit-status)
+    #+end_src
+*** COFFEE-SCRIPT
+   #+begin_src emacs-lisp
+(use-package coffee-mode
+   :ensure t
+   :init
+   (progn
+     (add-hook 'coffee-mode-hook (lambda ()
+				   (setq coffee-tab-width 2)))))
+   #+end_src
+*** INPROGRESS ORG-MODE
+    #+begin_src emacs-lisp
+(use-package org-plus-contrib
+  :ensure t
+  :pin org
+  :mode (("\\.org$" . org-mode))
+  :preface
+  (progn
+    (unless (package-installed-p 'bbdb)
+      (package-install 'bbdb)
+      (package-install 'bbdb-vcard)
+      (package-install 'gnuplot))
+    (setq bbdb-file "~/document/contacts"
+	  bbdb-north-american-phone-numbers-p nil
+	  org-directory "~/documents/org"
+	  glen/org-expenses-file (concat org-directory "/expenses.org")
+	  glen/org-note-file (concat org-directory "/notes/" (format-time-string "%Y") "/" (format-time-string "%U") ".org")
+	  glen/org-todo-file (concat org-directory "/refile.org")
+	  glen/org-weight-file (concat org-directory "/weight/weight.org")))
+  :init
+  (progn
+    (setq org-modules '(org-bbdb)
+	  org-src-fontify-natively t
+	  org-src-window-setup 'current-window
+	  org-src-strip-leading-and-trailing-blank-lines t
+	  org-src-preserve-indentation t
+	  org-src-tab-acts-natively t
+	  org-agenda-include-diary nil
+	  org-use-speed-commands t
+	  org-use-fast-todo-selection t
+	  org-agenda-start-on-weekday 7
+	  org-tags-column 45
+	  org-agenda-files '("~/documents/org/agenda"
+			     "~/documents/org/agenda/home"
+			     "~/documents/org/agenda/work")
+	  org-refile-targets '((nil :maxlevel . 9) (org-agenda-files :maxlevel . 9))
+	  org-tag-alist '(("home" . ?h)
+			  ("work" . ?w)
+			  ("note" . ?n)
+			  ("transport" . ?t)
+			  ("food" . ?f)
+			  ("clothes" . ?c)
+			  ("medicine" . ?m)
+			  ("grooming" . ?g)
+			  ("entertainment" . ?e))
+	  org-todo-keywords '((sequence "SOMEDAY(s)" "TODO(t)" "INPROGRESS(i)" "DONE(d)" "WAITING(w)" "CANCELED(c)"))
+	  org-todo-keyword-faces '(("SOMEDAY" :foreground "#6CA0A3" :weight bold :height 0.8)
+				   ("TODO" :foreground "#AC7373" :weight bold :height 0.8)
+				   ("INPROGRESS" :foreground "#DFAF8F" :weight bold :height 0.8)
+				   ("DONE" :foreground "#5F7F5F" :weight bold :height 0.8)
+				   ("WAITING" :foreground "white" :weight bold :height 0.8)
+				   ("CANCELED" :foreground "#4F4F4F" :weight bold :height 0.8))
+	  org-capture-templates '(("e" "EXPENSES" entry (file+weektree glen/org-expenses-file) "* %(glen/org-capture-prompt \"ITEM\" 'item)\n:PROPERTIES:\n:PRICE: %(glen/org-capture-prompt \"PRICE\" 'item)\n:END:" :kill-buffer t)
+				  ("t" "TODO" entry (file glen/org-todo-file) "* TODO %? \n%U")
+				  ("n" "NOTE" entry (file glen/org-note-file) "* %? :@note: \n%U")
+				  ("w" "WEIGHT" plain (file+weektree glen/org-weight-file) ":PROPERTIES:\n:WEIGHT: %?\n:END:" :kill-buffer t)))
+    (add-hook 'org-capture-before-finalize-hook (lambda ()
+						  (if (org-at-heading-p)
+						      (org-set-tags))))
+    (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))))
+    #+end_src
+*** TODO RAINBOW-MODE
+    #+begin_src emacs-lisp
+(use-package rainbow-mode
+  :pin gnu
+  :ensure t
+  :diminish 'rainbow-mode
+  :config
+  (progn
+    (add-hook 'prog-mode-hook 'rainbow-mode)
+    (add-hook 'help-mode-hook 'rainbow-mode)))
+    #+end_src
+*** TODO HELM
+    #+begin_src emacs-lisp
+(use-package helm
+  :ensure helm-projectile
+  :ensure helm-swoop
+  :ensure helm-descbinds
+  :diminish helm-mode
+  :bind (("M-y" . helm-show-kill-ring)
+	 ("M-x" . helm-M-x)
+	 ("C-s" . helm-swoop-without-pre-input)
+	 ("C-h b" . helm-descbinds)
+	 ("C-h a" . helm-apropos)
+	 ("C-c p h" . helm-projectile)
+	 ("C-x r l" . helm-bookmarks)
+	 ("C-x c m" . helm-all-mark-rings)
+	 ("C-x c o" . helm-occur)
+	 ("C-x c r" . helm-recentf)
+	 ("C-x b" . helm-mini)
+	 ("C-x C-f" . helm-find-files))
+  :config
+  (progn
+    (helm-projectile-on)
+    (helm-autoresize-mode 1)
+    (helm-mode)
+    (setq helm-locate-command "locate -i -r %s"
+	  helm-idle-delay 0.0
+          helm-input-idle-delay 0.01
+          helm-quick-update t
+	  helm-mode-fuzzy-match t
+          helm-ff-skip-boring-files t
+	  helm-ff-newfile-prompt-p nil
+	  helm-ff-fuzzy-match t
+          helm-yas-display-key-on-candidate t
+	  helm-locate-fuzzy-match t
+	  helm-projectile-fuzzy-match t
+	  helm-recentf-fuzzy-match t
+	  helm-buffers-fuzzy-match t
+	  helm-apropos-fuzzy-match t
+	  helm-M-x-fuzzy-match t
+	  helm-swoop-move-to-line-cycle nil
+	  helm-swoop-split-direction 'split-window-vertically
+          helm-M-x-requires-pattern nil
+	  helm-swoop-use-fuzzy-match t
+	  helm-swoop-split-with-multiple-windows nil
+	  helm-display-header-line nil)))
+    #+end_src
+*** TODO BACON
+    #+begin_src emacs-lisp
+(use-package beacon
+  :ensure t
+  :diminish beacon-mode
+  :config
+  (progn
+    (beacon-mode 1)
+    (setq beacon-blink-when-point-moves-vertically nil
+	  beacon-blink-when-point-moves-horizontally nil
+	  beacon-blink-when-buffer-changes t
+	  beacon-blink-when-window-scrolls t
+	  beacon-blink-when-window-changes t
+	  beacon-blink-when-focused nil
+	  beacon-blink-duration 0.3
+	  beacon-blink-delay 0.3
+	  beacon-size 20
+	  beacon-color 0.5)))
+    #+end_src
+*** TODO UNDOOTREE
+    #+begin_src emacs-lisp
+(use-package undo-tree
+  :ensure t
+  :diminish undo-tree-mode
+  :bind (("C-x u" . undo-tree-visualize))
+  :commands global-undo-tree-mode
+  :config
+  (progn
+    (setq undo-tree-visualizer-timestamps t
+	  undo-tree-visualizer-diff nil)))
+    #+end_src
+*** TODO RAINBOW-DELIMITERS
+    #+begin_src emacs-lisp
+(use-package rainbow-delimiters
+  :defer t
+  :ensure t
+  :init
+  (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
+    #+end_src
+*** TODO EMMS
+    #+begin_src emacs-lisp
+;; (use-package emms
+;;   :ensure t
+;;   :pin melpa-stable
+;;   :init
+;;   (progn
+;;     (emms-player-mpd-update-all)
+;;     (emms-cache-set-from-mpd-all))
+;;   :config
+;;   (progn
+;;     (setq emms-player-list '(emms-player-mpd)
+;; 	  emms-player-mpd-server-name "localhost"
+;; 	  emms-player-mpd-server-port "6600"
+;; 	  emms-player-mpd-music-directory "~/music"
+;; 	  emms-player-mpd-sync-playlist nil
+;; 	  emms-playing-time-display-p nil
+;; 	  emms-info-functions '(emms-info-mpd)
+;; 	  emms-info-asynchronously nil
+;; 	  emms-info-auto-update t
+;; 	  emms-lyrics-scroll-p nil
+;; 	  emms-lyrics-display-on-minibuffer t
+;; 	  emms-lyrics-display-on-modeline nil
+;; 	  emms-lyrics-dir "~/music/lyrics"
+;; 	  emms-browser-default-covers '("~/music/cover_default.jpg" nil nil)
+;; 	  emms-browser-default-browse-type 'info-album)))
+    #+end_src
+*** PHP
+    #+begin_src emacs-lisp
+(use-package php-mode
+  :ensure t
+  :config
+  (progn
+    (add-hook 'php-mode-hook (lambda ()
+                               (setq indent-tabs-mode nil
+                                     tab-width 2
+                                     c-basic-offset 2)))
+    (bind-key "C-c TAB" 'indent-region php-mode-map)
+    (bind-key "C-c C-c" 'glen/toggle-comments php-mode-map)))
+    #+end_src
+*** RESTCLIENT
+    #+begin_src emacs-lisp
+ (use-package restclient
+   :ensure t
+   :init
+   (progn
+     (add-hook 'restclient-mode-hook (lambda ()
+                                       (company-mode 1)
+                                       (company-restclient 1)))
+     (add-to-list 'auto-mode-alist '("\\.rest$" . restclient-mode))))
+    #+end_src
+*** INPROGRESS WEB
+    #+begin_src emacs-lisp
+(use-package web-mode
+  :ensure t
+  :mode (("\\.html$" . web-mode)
+	 ("\\.css$" . web-mode))
+  :init
+  (progn
+    (setq web-mode-markup-indent-offset 2
+          web-mode-comment-style 2
+          web-mode-css-indent-offset 2
+          web-mode-code-indent-offset 2
+          web-mode-enable-auto-pairing t
+          web-mode-enable-current-element-highlight t
+          web-mode-enable-current-column-highlight t)
+    (add-hook 'web-mode-hook (lambda ()
+                               (set (make-local-variable 'company-backends) '(company-web-html))
+                               (company-mode t))))
+  :bind
+  (("C-c C-c" . web-mode-comment-or-uncomment)))
+    #+end_src
+*** INPROGRESS COMPANY
+    #+begin_src emacs-lisp
+ (use-package company
+   :ensure helm-company
+   :ensure company-restclient
+   :ensure company-web
+   :pin melpa
+   :config
+   (progn
+     (bind-key "C-:" 'counsel-company company-mode-map)
+     (setq company-frontends nil
+	   company-backends '(company-restclient company-web-html))))
+    #+end_src
+*** JS
+    #+begin_src emacs-lisp
+(use-package js2-mode
+  :pin melpa
+  :ensure t
+  :ensure web-beautify
+  :mode (("\\.js$" . js2-mode))
+  :commands js2-mode
+  :init
+  (progn
+    (setq-default js-indent-level 2
+		  js2-basic-offset 2)
+    (add-to-list 'interpreter-mode-alist (cons "node" 'js2-mode)))
+  :config
+  (progn
+    (js2-imenu-extras-setup)
+    (bind-key "C-c C-c" 'glen/toggle-comments js2-mode-map)
+    (bind-key "C-c TAB" 'web-beautify-js js2-mode-map)
+    (bind-key "C-x C-e" 'js-send-last-sexp js2-mode-map)
+    (bind-key "C-M-x" 'js-send-last-sexp-and-go js2-mode-map)
+    (bind-key "C-c b" 'js-send-buffer js2-mode-map)
+    (bind-key "C-c d" 'my/insert-or-flush-debug js2-mode-map)
+    (bind-key "C-c C-b" 'js-send-buffer-and-go js2-mode-map)
+    (bind-key "C-c w" 'my/copy-javascript-region-or-buffer js2-mode-map)))
+    #+end_src
+*** ERC
+    #+begin_src emacs-lisp
+ (setq erc-echo-notices-in-minibuffer-flag t
+       erc-fill-column 70
+       erc-nick "sireseog"
+       erc-keywords '("sireseog")
+       erc-track-exclude-types '("JOIN" "NICK" "PART" "QUIT" "MODE"
+				 "324" "329" "332" "333" "353" "477")
+       erc-hide-list '("JOIN" "PART" "QUIT"))
+    #+end_src
+*** SKEWER MODE
+    #+begin_src emacs-lisp
+ (use-package skewer-mode
+   :ensure t
+   :pin melpa
+   :config
+   (progn
+     (setq httpd-port 1234)
+     (add-hook 'web-mode-hook 'skewer-mode)))
+    #+end_src
+*** IMPATIENT MODE
+    #+begin_src emacs-lisp
+ (use-package impatient-mode
+   :ensure t
+   :pin melpa)
+    #+end_src
+*** IVY
+    #+begin_src emacs-lisp
+;; (use-package ivy :demand
+;;   :diminish (ivy-mode . "")
+;;   :pin melpa
+;;   :ensure t
+;;   :config
+;;   (ivy-mode 1)
+;;   (progn
+;;     (ivy-set-display-transformer 'ivy-switch-buffer 'ivy-rich-switch-buffer-transformer)
+;;     (setq ivy-use-virtual-buffers t
+;; 	  ivy-initial-inputs-alist nil
+;; 	  ivy-re-builders-alist '((t . ivy--regex-fuzzy))
+;; 	  ivy-height 10
+;; 	  ivy-count-format "")))
+    #+end_src
+*** COUNSEL
+    #+begin_src emacs-lisp
+;; (use-package counsel
+;;   :pin melpa
+;;   :ensure t
+;;   :config
+
+;; )
+    #+end_src
+*** AVY
+    #+begin_src emacs-lisp
+(use-package avy
+  :pin melpa
+  :ensure t
+  :bind
+  (("C-c j" . avy-goto-char)))
+    #+end_src

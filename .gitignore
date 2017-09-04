@@ -1,0 +1,10 @@
+auto-save-list/
+backups/
+elpa/
+eshell/
+bookmarks
+config.el
+recentf
+savehist
+tramp*
+%backup%~*
