@@ -18,7 +18,7 @@
  '(org-agenda-files nil)
  '(package-selected-packages
    (quote
-    (avy ivy-rich flx counsel ivy restclient coffee-mode lorem-ipsum magit apache-mode itail logview impatient-mode skewer-mode nginx-mode web-beautify js2-mode web-mode w3m php-mode gnuplot helm-emms emms bbdb-vcard bbdb rainbow-delimiters beacon zenburn-theme use-package undo-tree rainbow-mode org-plus-contrib helm-swoop helm-projectile helm-descbinds helm-company hc-zenburn-theme company-web company-restclient)))
+    (helm-ag flycheck kubernetes magit exec-path-from-shell avy ivy-rich flx counsel ivy restclient coffee-mode lorem-ipsum apache-mode itail logview impatient-mode skewer-mode nginx-mode web-beautify js2-mode web-mode w3m php-mode gnuplot helm-emms emms bbdb-vcard bbdb rainbow-delimiters beacon zenburn-theme use-package undo-tree rainbow-mode org-plus-contrib helm-swoop helm-projectile helm-descbinds helm-company hc-zenburn-theme company-web company-restclient)))
  '(safe-local-variable-values (quote ((eval org-columns))))
  '(show-trailing-whitespace t)
  '(standard-indent 2))

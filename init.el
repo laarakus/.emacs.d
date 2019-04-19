@@ -11,12 +11,14 @@
 (setq package-user-dir "~/.emacs.d/elpa/")
 (require 'package)
 (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/")  t)
 (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
 (package-initialize)
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
+(unless (package-installed-p 'diminish)
+  (package-refresh-contents)
+  (package-install 'diminish))
 (eval-when-compile
   (require 'use-package)
   (setq use-package-always-ensure nil))
@@ -25,5 +27,4 @@
 (org-babel-load-file (concat user-emacs-directory "config.org"))
 
 ;;; init.el ends here
-
 (put 'narrow-to-region 'disabled nil)
