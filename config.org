@@ -2,7 +2,7 @@
 
 * Information
   #+begin_src emacs-lisp
-(setq user-full-name "WALID LAARAKI"
+(setq user-full-name "Walid LAARAKI"
       user-mail-address "wlaaraki@gmail.com"
       user-home-directory (concat (getenv "HOME")"/")
       user-emacs-directory (concat user-home-directory ".emacs.d/")
@@ -21,17 +21,15 @@
     #+end_src
 ** fonts
    #+Begin_src emacs-lisp
-(set-face-attribute 'default nil
-		    :family "Monospace" :height 160)
-(set-face-attribute 'variable-pitch nil
-		    :family "Sans" :height 160)
+(set-face-attribute 'default nil :family "Monospace" :height 160)
+(set-face-attribute 'variable-pitch nil :family "Sans" :height 160)
 (global-font-lock-mode 1)
    #+end_src
 ** visual
    #+Begin_src emacs-lisp
 (defalias 'yes-or-no-p 'y-or-n-p)
 (setq-default truncate-lines 1
-	      cursor-in-non-selected-windows nil)
+       cursor-in-non-selected-windows nil)
 (setq echo-keystrokes 0.1
       scroll-step 1
       frame-resize-pixelwise t
@@ -42,7 +40,7 @@
       show-paren-delay 0
       show-paren-style 'expression
       truncate-partial-width-windows 1
-      frame-title-format "EMACS"
+      frame-title-format ""
       icon-title-format frame-title-format)
 (show-paren-mode t)
 (blink-cursor-mode -1)
@@ -50,8 +48,10 @@
 (global-hl-line-mode 1)
 (toggle-indicate-empty-lines 1)
 (diminish 'visual-line-mode)
+(setq ring-bell-function 'ignore)
 (global-set-key (kbd "M-p") 'text-scale-increase)
 (global-set-key (kbd "M-m") 'text-scale-decrease)
+(global-whitespace-mode 1)
    #+end_src
 * Behavior
 ** general
@@ -67,8 +67,11 @@
       history-delete-duplicates t
       savehist-additional-variables '(kill-ring search-ring regexp-search-ring)
       locale-coding-system 'utf-8
-      indent-tabs-mode nil
       sentence-end-double-space nil)
+(setq-default indent-tabs-mode nil
+              tab-width 2)
+(setq mac-command-modifier 'meta
+      mac-option-modifier 'none)
 (savehist-mode 1)
 (icomplete-mode -1)
 (electric-pair-mode 1)
@@ -78,6 +81,7 @@
 (prefer-coding-system 'utf-8)
 (delete-selection-mode t)
 (global-auto-revert-mode t)
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
    #+end_src
 ** bindings
    #+Begin_src emacs-lisp
@@ -108,37 +112,37 @@
       ibuffer-show-empty-filter-groups nil
       ibuffer-saved-filter-groups
       (quote (("default"
-	       ("dired" (mode . dired-mode))
-	       ("web" (or
-		       (mode . js2-mode)
-		       (mode . restclient-mode)
-		       (mode . web-mode)
-		       (mode . php-mode)
-		       (mode . css-mode)))
-	       ("erc" (mode . erc-mode))
-	       ("org" (mode . org-mode))
-	       ("images" (mode . image-mode))
-	       ("help" (or
-			(name . "^\\*Help\\*$")
-			(name . "^\\*Apropos\\*$")
-			(name . "^\\*info\\*$")))
-	       ("emacs" (or
-			 (name . "^\\*Edit Macro\\*$")
-			 (name . "^\\*scratch\\*$")
-			 (name . "^\\*Messages\\*$")))
-	       ("gnus" (or
-			(mode . message-mode)
-			(mode . bbdb-mode)
-			(mode . mail-mode)
-			(mode . gnus-group-mode)
-			(mode . gnus-summary-mode)
-			(mode . gnus-article-mode)
-			(name . "^\\.bbdb$")
-			(name . "^\\.newsrc-dribble")))))))
+               ("dired" (mode . dired-mode))
+               ("web" (or
+                       (mode . js2-mode)
+                       (mode . restclient-mode)
+                       (mode . web-mode)
+                       (mode . php-mode)
+                       (mode . css-mode)))
+               ("erc" (mode . erc-mode))
+               ("org" (mode . org-mode))
+               ("images" (mode . image-mode))
+               ("help" (or
+                        (name . "^\\*Help\\*$")
+                        (name . "^\\*Apropos\\*$")
+                        (name . "^\\*info\\*$")))
+               ("emacs" (or
+                         (name . "^\\*Edit Macro\\*$")
+                         (name . "^\\*scratch\\*$")
+                         (name . "^\\*Messages\\*$")))
+               ("gnus" (or
+                        (mode . message-mode)
+                        (mode . bbdb-mode)
+                        (mode . mail-mode)
+                        (mode . gnus-group-mode)
+                        (mode . gnus-summary-mode)
+                        (mode . gnus-article-mode)
+                        (name . "^\\.bbdb$")
+                        (name . "^\\.newsrc-dribble")))))))
 (add-hook 'ibuffer-mode-hook
-	  (lambda ()
-	    (ibuffer-auto-mode 1)
-	    (ibuffer-switch-to-saved-filter-groups "default")))
+          (lambda ()
+            (ibuffer-auto-mode 1)
+            (ibuffer-switch-to-saved-filter-groups "default")))
     #+end_src
 ** ispell
     #+begin_src emacs-lisp
@@ -149,8 +153,8 @@
   (progn
     (when (executable-find "aspell")
       (setq ispell-program-name "aspell"
-	    ispell-extra-args '("--sug-mode=ultra" "--lang=en_US")
-	    ispell-silently-savep t))))
+            ispell-extra-args '("--sug-mode=ultra" "--lang=en_US")
+            ispell-silently-savep t))))
     #+end_src
 ** flyspell
     #+begin_src emacs-lisp
@@ -164,7 +168,7 @@
   :config
   (progn
     (setq flyspell-use-meta-tab nil
-	  flyspell-auto-correct-binding (kbd "C-x a c"))))
+          flyspell-auto-correct-binding (kbd "C-x a c"))))
     #+end_src
 ** eshell
     #+begin_src emacs-lisp
@@ -187,15 +191,15 @@
   :init
   (progn
     (setq org-src-fontify-natively t
-	  org-src-window-setup 'current-window
-	  org-src-strip-leading-and-trailing-blank-lines t
-	  org-src-preserve-indentation t
-	  org-src-tab-acts-natively t
-	  org-agenda-include-diary nil
-	  org-use-speed-commands t
-	  org-use-fast-todo-selection t
-	  org-agenda-start-on-weekday 7
-	  org-tags-column 45)
+          org-src-window-setup 'current-window
+          org-src-strip-leading-and-trailing-blank-lines t
+          org-src-preserve-indentation t
+          org-src-tab-acts-natively t
+          org-agenda-include-diary nil
+          org-use-speed-commands t
+          org-use-fast-todo-selection t
+          org-agenda-start-on-weekday 7
+          org-tags-column 45)
     (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))))
     #+end_src
 ** rainbow-mode
@@ -217,43 +221,43 @@
   :ensure helm-descbinds
   :diminish helm-mode
   :bind (("M-y" . helm-show-kill-ring)
-	 ("M-x" . helm-M-x)
-	 ("C-s" . helm-swoop-without-pre-input)
-	 ("C-h b" . helm-descbinds)
-	 ("C-h a" . helm-apropos)
-	 ("C-c p h" . helm-projectile)
-	 ("C-x r l" . helm-bookmarks)
-	 ("C-x c m" . helm-all-mark-rings)
-	 ("C-x c o" . helm-occur)
-	 ("C-x c r" . helm-recentf)
-	 ("C-x b" . helm-mini)
-	 ("C-x C-f" . helm-find-files))
+         ("M-x" . helm-M-x)
+         ("C-s" . helm-swoop-without-pre-input)
+         ("C-h b" . helm-descbinds)
+         ("C-h a" . helm-apropos)
+         ("C-c p h" . helm-projectile)
+         ("C-x r l" . helm-bookmarks)
+         ("C-x c m" . helm-all-mark-rings)
+         ("C-x c o" . helm-occur)
+         ("C-x c r" . helm-recentf)
+         ("C-x b" . helm-mini)
+         ("C-x C-f" . helm-find-files))
   :config
   (progn
     (helm-projectile-on)
     (helm-autoresize-mode 1)
     (helm-mode)
     (setq helm-locate-command "locate -i -r %s"
-	  helm-idle-delay 0.0
+          helm-idle-delay 0.0
           helm-input-idle-delay 0.01
           helm-quick-update t
-	  helm-mode-fuzzy-match t
+          helm-mode-fuzzy-match t
           helm-ff-skip-boring-files t
-	  helm-ff-newfile-prompt-p nil
-	  helm-ff-fuzzy-match t
+          helm-ff-newfile-prompt-p nil
+          helm-ff-fuzzy-match t
           helm-yas-display-key-on-candidate t
-	  helm-locate-fuzzy-match t
-	  helm-projectile-fuzzy-match t
-	  helm-recentf-fuzzy-match t
-	  helm-buffers-fuzzy-match t
-	  helm-apropos-fuzzy-match t
-	  helm-M-x-fuzzy-match t
-	  helm-swoop-move-to-line-cycle nil
-	  helm-swoop-split-direction 'split-window-vertically
+          helm-locate-fuzzy-match t
+          helm-projectile-fuzzy-match t
+          helm-recentf-fuzzy-match t
+          helm-buffers-fuzzy-match t
+          helm-apropos-fuzzy-match t
+          helm-M-x-fuzzy-match t
+          helm-swoop-move-to-line-cycle nil
+          helm-swoop-split-direction 'split-window-vertically
           helm-M-x-requires-pattern nil
-	  helm-swoop-use-fuzzy-match t
-	  helm-swoop-split-with-multiple-windows nil
-	  helm-display-header-line nil)))
+          helm-swoop-use-fuzzy-match t
+          helm-swoop-split-with-multiple-windows nil
+          helm-display-header-line nil)))
     #+end_src
 ** bacon
     #+begin_src emacs-lisp
@@ -264,15 +268,15 @@
   (progn
     (beacon-mode 1)
     (setq beacon-blink-when-point-moves-vertically nil
-	  beacon-blink-when-point-moves-horizontally nil
-	  beacon-blink-when-buffer-changes t
-	  beacon-blink-when-window-scrolls t
-	  beacon-blink-when-window-changes t
-	  beacon-blink-when-focused nil
-	  beacon-blink-duration 0.3
-	  beacon-blink-delay 0.3
-	  beacon-size 20
-	  beacon-color 0.5)))
+          beacon-blink-when-point-moves-horizontally nil
+          beacon-blink-when-buffer-changes t
+          beacon-blink-when-window-scrolls t
+          beacon-blink-when-window-changes t
+          beacon-blink-when-focused nil
+          beacon-blink-duration 0.3
+          beacon-blink-delay 0.3
+          beacon-size 20
+          beacon-color 0.5)))
     #+end_src
 ** undootree
     #+begin_src emacs-lisp
@@ -284,7 +288,7 @@
   :config
   (progn
     (setq undo-tree-visualizer-timestamps t
-	  undo-tree-visualizer-diff nil)))
+          undo-tree-visualizer-diff nil)))
     #+end_src
 ** rainbow-delimiters
     #+begin_src emacs-lisp
@@ -309,24 +313,20 @@
     #+end_src
 ** restclient
     #+begin_src emacs-lisp
-(use-package restclient
-  :ensure t
-  :init
-  (progn
-    (add-hook 'restclient-mode-hook (lambda ()
-				      (company-mode 1)
-				      (company-restclient 1)))
-    (add-to-list 'auto-mode-alist '("\\.rest$" . restclient-mode))))
+(add-hook 'restclient-mode-hook (lambda ()
+                                  (company-mode 1)
+                                  (company-restclient 1)))
+(add-to-list 'auto-mode-alist '("\\.rest$" . restclient-mode))
     #+end_src
 ** inprogress web
     #+begin_src emacs-lisp
 (use-package web-mode
   :ensure t
   :mode (("\\.html$" . web-mode)
-	 ("\\.vue" . web-mode)
-	 ("\\.js" . web-mode)
-	 ("\\.json" . web-mode)
-	 ("\\.css$" . web-mode))
+         ("\\.vue" . web-mode)
+         ("\\.js" . web-mode)
+         ("\\.json" . web-mode)
+         ("\\.css$" . web-mode))
   :init
   (progn
     (setq web-mode-markup-indent-offset 2
@@ -346,7 +346,7 @@
       erc-nick "sireseog"
       erc-keywords '("sireseog")
       erc-track-exclude-types '("JOIN" "NICK" "PART" "QUIT" "MODE"
-				"324" "329" "332" "333" "353" "477")
+                                "324" "329" "332" "333" "353" "477")
       erc-hide-list '("JOIN" "PART" "QUIT"))
     #+end_src
 ** impatient mode
@@ -370,10 +370,6 @@
   :ensure t
   :init
   (exec-path-from-shell-initialize))
-(setq mac-option-key-is-meta nil
-      mac-command-key-is-meta t
-      mac-command-modifier 'meta
-      mac-option-modifier 'none)
 (setq insert-directory-program "gls" dired-use-ls-dired t)
 (setenv "PATH" (concat (getenv "PATH") "/usr/local/bin"))
 (setq exec-path (append exec-path '("/usr/local/bin")))
@@ -383,4 +379,33 @@
 (use-package kubernetes
   :ensure t
   :commands (kubernetes-overview))
+    #+end_src
+** flycheck
+    #+begin_src emacs-lisp
+ (defun jc/use-eslint-from-node-modules ()
+    "Set local eslint if available."
+    (let* ((root (locate-dominating-file
+                  (or (buffer-file-name) default-directory)
+                  "node_modules"))
+
+           (eslint (and root
+                        (expand-file-name "node_modules/eslint/bin/eslint.js"
+                                          root))))
+      (when (and eslint (file-executable-p eslint))
+        (setq-local flycheck-javascript-eslint-executable eslint))))
+(use-package flycheck
+  :ensure t
+  :diminish
+  :config
+  (add-hook 'after-init-hook 'global-flycheck-mode)
+  (add-hook 'flycheck-mode-hook 'jc/use-eslint-from-node-modules)
+  (add-hook 'web-mode-hook #'jc/use-eslint-from-node-modules)
+  (flycheck-add-mode 'javascript-eslint 'web-mode))
+    #+end_src
+** git
+    #+begin_src emacs-lisp
+ (use-package diff-hl
+    :ensure t
+    :init
+    (global-diff-hl-mode))
     #+end_src
