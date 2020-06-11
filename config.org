@@ -409,3 +409,8 @@
     :init
     (global-diff-hl-mode))
     #+end_src
+** helm-ag
+    #+begin_src emacs-lisp
+ (use-package helm-ag
+    :ensure t)
+    #+end_src
