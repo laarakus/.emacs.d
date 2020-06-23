@@ -160,11 +160,10 @@
     #+begin_src emacs-lisp
 (use-package flyspell
   :diminish flyspell-mode
-  :init
-  (progn
-    (add-hook 'prog-mode-hook 'flyspell-prog-mode)
-    (add-hook 'text-mode-hook 'turn-on-flyspell)
-    (add-hook 'org-mode-hook  'turn-on-flyspell))
+  :config
+  (add-hook 'prog-mode-hook 'flyspell-prog-mode)
+  (add-hook 'text-mode-hook 'turn-on-flyspell)
+  (add-hook 'org-mode-hook  'turn-on-flyspell)
   :config
   (progn
     (setq flyspell-use-meta-tab nil
@@ -216,16 +215,15 @@
 ** helm
     #+begin_src emacs-lisp
 (use-package helm
-  :ensure helm-projectile
   :ensure helm-swoop
   :ensure helm-descbinds
+  :pin melpa
   :diminish helm-mode
   :bind (("M-y" . helm-show-kill-ring)
          ("M-x" . helm-M-x)
          ("C-s" . helm-swoop-without-pre-input)
          ("C-h b" . helm-descbinds)
          ("C-h a" . helm-apropos)
-         ("C-c p h" . helm-projectile)
          ("C-x r l" . helm-bookmarks)
          ("C-x c m" . helm-all-mark-rings)
          ("C-x c o" . helm-occur)
@@ -234,7 +232,6 @@
          ("C-x C-f" . helm-find-files))
   :config
   (progn
-    (helm-projectile-on)
     (helm-autoresize-mode 1)
     (helm-mode)
     (setq helm-locate-command "locate -i -r %s"
@@ -247,7 +244,6 @@
           helm-ff-fuzzy-match t
           helm-yas-display-key-on-candidate t
           helm-locate-fuzzy-match t
-          helm-projectile-fuzzy-match t
           helm-recentf-fuzzy-match t
           helm-buffers-fuzzy-match t
           helm-apropos-fuzzy-match t
@@ -284,11 +280,11 @@
   :ensure t
   :diminish undo-tree-mode
   :bind (("C-x u" . undo-tree-visualize))
-  :commands global-undo-tree-mode
   :config
   (progn
     (setq undo-tree-visualizer-timestamps t
-          undo-tree-visualizer-diff nil)))
+          undo-tree-visualizer-diff nil))
+  (global-undo-tree-mode))
     #+end_src
 ** rainbow-delimiters
     #+begin_src emacs-lisp
@@ -384,7 +380,7 @@
     #+end_src
 ** flycheck
     #+begin_src emacs-lisp
- (defun jc/use-eslint-from-node-modules ()
+ (defun laarakus/use-eslint-from-node-modules ()
     "Set local eslint if available."
     (let* ((root (locate-dominating-file
                   (or (buffer-file-name) default-directory)
@@ -399,10 +395,11 @@
   :ensure t
   :diminish
   :config
-  (add-hook 'after-init-hook 'global-flycheck-mode)
-  (add-hook 'flycheck-mode-hook 'jc/use-eslint-from-node-modules)
-  (add-hook 'web-mode-hook #'jc/use-eslint-from-node-modules)
-  (flycheck-add-mode 'javascript-eslint 'web-mode))
+  (progn
+    (add-hook 'after-init-hook 'global-flycheck-mode)
+    (add-hook 'flycheck-mode-hook 'laarakus/use-eslint-from-node-modules)
+    (add-hook 'web-mode-hook #'laarakus/use-eslint-from-node-modules)
+    (flycheck-add-mode 'javascript-eslint 'web-mode)))
     #+end_src
 ** git
     #+begin_src emacs-lisp
@@ -418,11 +415,17 @@
     #+end_src
 ** lsp-mode
     #+begin_src emacs-lisp
+(defun laarakus/use-lsp-on-ts-files ()
+  "activate lsp on ts and tsx files"
+  (when
+      (or
+       (string= (file-name-extension buffer-file-name) "ts")
+       (string= (file-name-extension buffer-file-name) "tsx"))
+    (lsp)))
 (use-package lsp-mode
     :ensure t
     :pin melpa-stable
-    :hook
-    ((web-mode . lsp))
+    :init (add-hook 'web-mode-hook 'laarakus/use-lsp-on-ts-files)
     :commands lsp)
     #+end_src
 ** lsp-ui

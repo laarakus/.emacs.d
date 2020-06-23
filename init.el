@@ -11,6 +11,7 @@
 (setq package-user-dir "~/.emacs.d/elpa/")
 (require 'package)
 (setq package-archives '(("melpa-stable" . "https://stable.melpa.org/packages/")
+                         ("melpa" . "https://melpa.org/packages/")
                          ("gnu" . "http://elpa.gnu.org/packages/")
                          ("org" . "http://orgmode.org/elpa/")))
 (package-initialize)
