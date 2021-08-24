@@ -39,6 +39,7 @@
       blink-matching-paren t
       show-paren-delay 0
       show-paren-style 'expression
+      fill-column 80
       truncate-partial-width-windows 1
       frame-title-format ""
       icon-title-format frame-title-format)
@@ -340,7 +341,7 @@
 ** erc
     #+begin_src emacs-lisp
 (setq erc-echo-notices-in-minibuffer-flag t
-      erc-fill-column 70
+      erc-fill-column 80
       erc-nick "sireseog"
       erc-keywords '("sireseog")
       erc-track-exclude-types '("JOIN" "NICK" "PART" "QUIT" "MODE"
@@ -453,8 +454,8 @@
     (when (and prettier (file-executable-p prettier))
       (setq prettier-js-command prettier)
       (if (locate-dominating-file default-directory ".prettierrc")
-          (prettier-js-mode +1)))))
-(use-package prettier-js
+          (prettier-mode t)))))
+(use-package prettier
     :ensure t
     :pin melpa-stable
     :init (add-hook 'web-mode-hook 'laarakus/use-prettier-from-node-modules))
