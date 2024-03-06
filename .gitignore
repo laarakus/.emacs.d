@@ -1,9 +1,9 @@
-auto-save-list/
-url/
-transient/
-backups/
-elpa/
-eshell/
+auto-save-list
+url
+transient
+backups
+elpa
+eshell
 bookmarks
 config.el
 recentf
@@ -12,3 +12,9 @@ savehist
 tramp*
 %backup%~*
 .lsp-session-v1
+.DS_Store
+.cache
+eln-cache
+straight
+tree-sitter
+undo
