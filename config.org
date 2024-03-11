@@ -14,7 +14,44 @@
 #+Begin_src emacs-lisp
   (set-face-attribute 'default nil :family "Monospace" :height 160)
   (set-face-attribute 'variable-pitch nil :family "Sans" :height 160)
-  (global-font-lock-mode 1)
+#+end_src
+** functions
+#+Begin_src emacs-lisp
+  (defun laarakus/git-branch ()
+    "Get the current Git branch using vc-mode."
+    (let ((backend (vc-backend buffer-file-name)))
+      (if (eq backend 'Git)
+          (substring-no-properties (vc-git--symbolic-ref "HEAD")) "")))
+
+#+end_src
+** diminish
+#+Begin_src emacs-lisp
+  (diminish 'visual-line-mode)
+  (diminish 'eldoc-mode)
+  (diminish 'whitespace-mode)
+#+end_src
+** bindings
+#+Begin_src emacs-lisp
+  (global-set-key (kbd "C-c C-c") 'comment-or-uncomment-region)
+  (global-set-key (kbd "M-p") 'text-scale-increase)
+  (global-set-key (kbd "M-m") 'text-scale-decrease)
+  (global-set-key (kbd "C-c s") 'eshell)
+  (global-set-key (kbd "C-c b") 'ibuffer)
+#+end_src
+** modes
+#+Begin_src emacs-lisp
+  (show-paren-mode t)
+  (blink-cursor-mode -1)
+  (column-number-mode 1)
+  (global-hl-line-mode 1)
+  (global-whitespace-mode 1)
+  (global-font-lock-mode)
+  (toggle-indicate-empty-lines 1)
+  (savehist-mode 1)
+  (icomplete-mode -1)
+  (electric-pair-mode 1)
+  (delete-selection-mode t)
+  (global-auto-revert-mode t)
 #+end_src
 ** visual
 #+Begin_src emacs-lisp
@@ -23,6 +60,7 @@
   (setq-default truncate-lines 1
                 cursor-in-non-selected-windows nil)
   (setq echo-keystrokes 0.1
+        initial-buffer-choice t
         scroll-step 1
         frame-resize-pixelwise t
         mouse-wheel-scroll-amount '(1 ((shift) . 1))
@@ -33,30 +71,10 @@
         show-paren-style 'expression
         fill-column 80
         truncate-partial-width-windows 1
-        initial-frame-alist (append initial-frame-alist
-                                    '((left   . 0)
-                                      (top    . 0)
-                                      (width  . 70)
-                                      (height . 100)))
+        initial-frame-alist '((fullscreen . maximized))
         frame-title-format ""
+        ring-bell-function 'ignore
         icon-title-format frame-title-format)
-  (show-paren-mode t)
-  (blink-cursor-mode -1)
-  (column-number-mode 1)
-  (global-hl-line-mode 1)
-  (toggle-indicate-empty-lines 1)
-  (diminish 'visual-line-mode)
-  (diminish 'eldoc-mode)
-  (diminish 'whitespace-mode)
-  (setq ring-bell-function 'ignore)
-  (global-set-key (kbd "M-p") 'text-scale-increase)
-  (global-set-key (kbd "M-m") 'text-scale-decrease)
-  (global-whitespace-mode 1)
-  (defun laarakus/git-branch ()
-    "Get the current Git branch using vc-mode."
-    (let ((backend (vc-backend buffer-file-name)))
-      (if (eq backend 'Git)
-          (substring-no-properties (vc-git--symbolic-ref "HEAD")) "")))
   (setq-default mode-line-format '(
                                    "%e"
                                    " "
@@ -87,27 +105,17 @@
         history-delete-duplicates t
         savehist-additional-variables '(kill-ring search-ring regexp-search-ring)
         locale-coding-system 'utf-8
-        sentence-end-double-space nil)
-  (setq indent-tabs-mode nil
-        tab-width 2)
-  (setq mac-command-modifier 'meta
+        sentence-end-double-space nil
+        indent-tabs-mode nil
+        tab-width 2
+        mac-command-modifier 'meta
         mac-option-modifier 'none)
-  (savehist-mode 1)
-  (icomplete-mode -1)
-  (electric-pair-mode 1)
   (set-default-coding-systems 'utf-8)
   (set-terminal-coding-system 'utf-8)
   (set-keyboard-coding-system 'utf-8)
   (set-selection-coding-system 'utf-8)
   (prefer-coding-system 'utf-8)
-  (delete-selection-mode t)
-  (global-auto-revert-mode t)
   (add-hook 'before-save-hook 'delete-trailing-whitespace)
-#+end_src
-** bindings
-#+Begin_src emacs-lisp
-  (global-set-key (kbd "C-c s") 'eshell)
-  (global-set-key (kbd "C-c b") 'ibuffer)
 #+end_src
 ** eshell
 #+begin_src emacs-lisp
@@ -169,13 +177,14 @@
           (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
           (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
           ))
-;;;(mapc #'treesit-install-language-grammar (mapcar #'car treesit-language-source-alist))
+  ;;;(mapc #'treesit-install-language-grammar (mapcar #'car treesit-language-source-alist))
 #+end_src
 ** typescript-ts-mode
 #+begin_src emacs-lisp
   (use-package typescript-ts-mode
     :straight (:type built-in)
-    :mode (("\\.ts" . typescript-ts-mode)))
+    :mode (("\\.ts" . typescript-ts-mode)
+           ("\\.json" . json-ts-mode)))
 #+end_src
 ** org-mode
 #+begin_src emacs-lisp
@@ -207,12 +216,71 @@
     (progn
       (load-theme 'zenburn t)))
 #+end_src
+** lsp-mode
+#+begin_src emacs-lisp
+  (use-package lsp-mode
+    :straight t
+    :diminish
+    :hook ((typescript-ts-mode . lsp-mode)
+           (web-mode . lsp-mode))
+    :config (progn
+              (setq lsp-log nil
+                    lsp-restart 'auto-restart
+                    lsp-javascript-suggest-auto-imports nil
+                    lsp-lens-enable nil
+                    lsp-clients-typescript-log-verbosity "verbose"
+                    lsp-eldoc-enable-hover nil
+                    lsp-typescript-surveys-enabled nil
+                    lsp-typescript-update-imports-on-file-move-enabled "never"
+                    lsp-typescript-format-enable nil
+                    lsp-javascript-format-enable nil
+                    lsp-modeline-diagnostics-enable nil
+                    lsp-modeline-code-actions-enable nil
+                    lsp-headerline-breadcrumb-enable nil)))
+  (use-package lsp-ui
+    :after lsp-mode
+    :straight t
+    :commands lsp-ui-mode
+    :config
+    (progn
+      (setq lsp-ui-sideline-enable nil
+            lsp-ui-doc-show-with-mouse nil
+            lsp-ui-doc-show-with-cursor t)))
+#+end_src
+** alpheleia
+#+begin_src emacs-lisp
+  (use-package apheleia
+    :straight (alpheleia-formatters :host github
+                                    :repo "radian-software/apheleia")
+    :diminish
+    :config (progn
+              (apheleia-global-mode +1)))
+#+end_src
+
+** flycheck
+#+begin_src emacs-lisp
+  (use-package flycheck
+    :straight (flycheck :host github
+                        :repo "flycheck/flycheck")
+    :bind (("C-c f e" . flycheck-list-errors))
+    :diminish
+    :hook ((typescript-ts-mode . flycheck-mode)))
+#+end_src
+** flycheck-pos-tip
+#+begin_src emacs-lisp
+  (use-package flycheck-pos-tip
+    :after flycheck
+    :straight (flycheck-pos-tip :host github
+                                :repo "flycheck/flycheck-pos-tip")
+    :diminish
+    :hook ((flycheck-mode . flycheck-pos-tip-mode)))
+#+end_src
 ** org-bullets
 #+begin_src emacs-lisp
   (use-package org-bullets
     :straight t
     :after org-mode
-    :hook ((org-mode . (lambda () (org-bullets-mode 1)))))
+    :hook ((org-mode . (lambda () (org-bullets-mode nil)))))
 #+end_src
 ** yasnippet
 #+begin_src emacs-lisp
@@ -369,6 +437,10 @@
     :hook ((restclient-mode . (lambda ()
                                 (company-mode 1)
                                 (company-restclient 1)))))
+  (use-package company-box
+    :diminish
+    :straight t
+    :hook (company-mode . company-box-mode))
 #+end_src
 ** web-mode
 #+begin_src emacs-lisp
@@ -402,15 +474,6 @@
             exec-path (append exec-path '("/usr/local/bin")))
       (setenv "PATH" (concat (getenv "PATH") "/usr/local/bin"))))
 #+end_src
-** flycheck
-#+begin_src emacs-lisp
-  (use-package flycheck
-    :straight (flycheck :host github
-                        :repo "flycheck/flycheck")
-    :bind (("C-c f e" . flycheck-list-errors))
-    :diminish
-    :hook ((typescript-ts-mode . flycheck-mode)))
-#+end_src
 ** diff-hl
 #+begin_src emacs-lisp
   (use-package diff-hl
@@ -418,46 +481,9 @@
     :config
     (global-diff-hl-mode))
 #+end_src
-** lsp-mode
-#+begin_src emacs-lisp
-  (defun laarakus/use-tsserver-from-node-modules ()
-    (interactive)
-    "Gets typescript from local path."
-    (let* ((root (locate-dominating-file
-                  (or (buffer-file-name) default-directory)
-                  "node_modules"))
-           (tsserver (and root
-                          (expand-file-name "node_modules/typescript/bin/tsserver"
-                                            root))))
-      (when (and tsserver (file-executable-p tsserver))
-        (setq-default lsp-clients-typescript-server-args `("--stdio" "--tsserver-path" ,tsserver)))))
-  (use-package lsp-mode
-    :straight t
-    :diminish
-    :hook ((typescript-ts-mode . 'laarakus/use-tsserver-from-node-modules)
-           (web-mode . 'laarakus/use-tsserver-from-node-modules))
-    :config (progn
-              (setq lsp-log nil
-                    lsp-restart 'auto-restart
-                    lsp-lens-enable nil
-                    lsp-modeline-code-actions-enable nil
-                    lsp-headerline-breadcrumb-enable nil)))
-  (use-package lsp-ui
-    :after lsp-mode
-    :straight t
-    :commands lsp-ui-mode
-    :config
-    (progn
-      (setq lsp-ui-sideline-enable nil
-            lsp-ui-doc-show-with-mouse nil
-            lsp-ui-doc-show-with-cursor t)
-      (lsp-headerline-breadcrumb-mode -1)))
-#+end_src
 ** eat
 #+begin_src emacs-lisp
   (use-package eat
-    :hook ((eshell-mode . #'eat-eshell-mode)
-           (shell-mode . #'eat-eshell-mode))
     :straight (eat :type git
                    :host codeberg
                    :repo "akib/emacs-eat"
@@ -466,13 +492,4 @@
                            ("terminfo/65" "terminfo/65/*")
                            ("integration" "integration/*")
                            (:exclude ".dir-locals.el" "*-tests.el"))))
-#+end_src
-** alpheleia
-#+begin_src emacs-lisp
-  (use-package apheleia
-    :straight (alpheleia-formatters :host github
-                         :repo "radian-software/apheleia")
-    :diminish
-    :config (progn
-              (apheleia-global-mode +1)))
 #+end_src
