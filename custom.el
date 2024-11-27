@@ -3,14 +3,16 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(apheleia-formatters '((prettier-typescript npx "prettier" file)))
+ '(apheleia-formatters
+   '((prettier-typescript npx "prettier" file)
+     (prettier-javascript npx "prettier" file)
+     (prettier-json npx "prettier" file "--parser=json")))
  '(apheleia-global-mode t)
  '(apheleia-mode-alist
    '((typescript-ts-mode . prettier-typescript)
-     (json-ts-mode . prettier-typescript)))
- '(custom-safe-themes
-   '("78e9a3e1c519656654044aeb25acb8bec02579508c145b6db158d2cfad87c44e"
-     default))
+     (web-mode . prettier-javascript)
+     (js-ts-mode . prettier-javascript) (json-ts-mode . prettier-json)))
+ '(eshell-history-size 999999)
  '(flycheck-pos-tip-mode t)
  '(flycheck-pos-tip-timeout 30)
  '(global-auto-revert-mode t)
@@ -19,8 +21,12 @@
  '(global-hl-line-mode t)
  '(global-undo-tree-mode t)
  '(global-whitespace-mode t)
+ '(helm-ag-base-command "ag --nocolor --nogroup -u")
+ '(helm-ag-use-agignore t)
  '(helm-always-two-windows nil)
+ '(helm-completion-style 'helm-fuzzy)
  '(helm-full-frame nil)
+ '(helm-minibuffer-history-mode t)
  '(helm-swoop-move-to-line-cycle nil)
  '(helm-swoop-pre-input-function '#[0 "\300\301!\207" [thing-at-point symbol] 2])
  '(helm-swoop-speed-or-color t)
@@ -28,9 +34,19 @@
  '(helm-swoop-split-with-multiple-windows nil)
  '(helm-swoop-use-fuzzy-match t)
  '(helm-swoop-use-line-number-face t)
+ '(ibuffer-default-sorting-mode 'major-mode)
+ '(ibuffer-expert t)
+ '(ibuffer-movement-cycle nil)
+ '(ibuffer-show-empty-filter-groups nil)
+ '(image-auto-resize nil)
  '(indent-tabs-mode nil)
  '(lsp-apply-edits-after-file-operations nil)
+ '(lsp-eldoc-enable-hover nil)
+ '(lsp-eldoc-render-all nil)
  '(lsp-enable-on-type-formatting nil)
+ '(lsp-signature-auto-activate nil)
+ '(lsp-signature-doc-lines 1)
+ '(lsp-signature-render-documentation nil)
  '(org-agenda-files nil)
  '(org-mode-hook
    '(#[0 "\301\211\20\207"
@@ -49,7 +65,9 @@
  '(pos-tip-background-color "#272A36")
  '(pos-tip-use-relative-coordinates t)
  '(prettier-mode-sync-config-flag nil)
+ '(recentf-max-saved-items nil)
  '(safe-local-variable-values '((eval org-columns)))
+ '(savehist-save-minibuffer-history 1)
  '(show-trailing-whitespace t)
  '(standard-indent 2)
  '(tooltip-frame-parameters

@@ -25,7 +25,7 @@
 (setq use-package-verbose t
       use-package-expand-minimally nil
       use-package-compute-statistics t
-      debug-on-error t)
+      debug-on-error nil)
 (setq use-package-verbose nil
       use-package-expand-minimally t)
 

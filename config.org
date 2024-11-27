@@ -12,11 +12,125 @@
 #+end_src
 ** fonts
 #+Begin_src emacs-lisp
-  (set-face-attribute 'default nil :family "Monospace" :height 160)
+  (set-face-attribute 'default nil :family "JetBrains Mono" :height 160)
   (set-face-attribute 'variable-pitch nil :family "Sans" :height 160)
 #+end_src
 ** functions
 #+Begin_src emacs-lisp
+  (defun laarakus/describe-at-point ()
+    "Show the documentation of the Elisp function and variable near point"
+    (interactive)
+    (let (sym)
+      (cond ((setq sym (ignore-errors
+                         (with-syntax-table emacs-lisp-mode-syntax-table
+                           (save-excursion
+                             (or (not (zerop (skip-syntax-backward "_w")))
+                                 (eq (char-syntax (char-after (point))) ?w)
+                                 (eq (char-syntax (char-after (point))) ?_)
+                                 (forward-sexp -1))
+                             (skip-chars-forward "`'")
+                             (let ((obj (read (current-buffer))))
+                               (and (symbolp obj) (fboundp obj) obj))))))
+             (describe-function sym))
+            ((setq sym (variable-at-point)) (describe-variable sym))
+            ((setq sym (function-at-point)) (describe-function sym)))))
+  (defun laarakus/launch-order-local-env ()
+    "Launch order workers and api"
+    (interactive)
+    (let ((eshell-buffer-name "o:initial-load"))
+      (eshell)
+      (rename-buffer eshell-buffer-name)
+      (insert "cd ~/workspace/order && npm run worker:initial-load:dev")
+      (eshell-send-input))
+    (let ((eshell-buffer-name "o:jobs"))
+      (eshell)
+      (rename-buffer eshell-buffer-name)
+      (insert "cd ~/workspace/order && npm run worker:order-jobs:dev")
+      (eshell-send-input))
+    (let ((eshell-buffer-name "o:payment"))
+      (eshell)
+      (rename-buffer eshell-buffer-name)
+      (insert "cd ~/workspace/order && npm run worker:payment-events:dev")
+      (eshell-send-input))
+    (let ((eshell-buffer-name "o:shipping"))
+      (eshell)
+      (rename-buffer eshell-buffer-name)
+      (insert "cd ~/workspace/order && npm run worker:shipping-events:dev")
+      (eshell-send-input))
+    (let ((eshell-buffer-name "o:outgoing"))
+      (eshell)
+      (rename-buffer eshell-buffer-name)
+      (insert "cd ~/workspace/order && npm run worker:order-events:dev")
+      (eshell-send-input))
+    (let ((eshell-buffer-name "o:acl"))
+      (eshell)
+      (rename-buffer eshell-buffer-name)
+      (insert "cd ~/workspace/order && npm run worker:acl-events:dev")
+      (eshell-send-input))
+    (let ((eshell-buffer-name "o:extra-action"))
+      (eshell)
+      (rename-buffer eshell-buffer-name)
+      (insert "cd ~/workspace/order && npm run worker:magento-order-action-events:dev")
+      (eshell-send-input))
+    (let ((eshell-buffer-name "o:documentary"))
+      (eshell)
+      (rename-buffer eshell-buffer-name)
+      (insert "cd ~/workspace/order && npm run worker:documentary-events:dev")
+      (eshell-send-input))
+    (let ((eshell-buffer-name "o:api"))
+      (eshell)
+      (rename-buffer eshell-buffer-name)
+      (insert "cd ~/workspace/order && npm run dev")
+      (eshell-send-input)))
+  (defun laarakus/launch-documentary-local-env ()
+    "Launch order workers and api"
+    (interactive)
+    (let ((eshell-buffer-name "od:event-faker"))
+      (eshell)
+      (rename-buffer eshell-buffer-name)
+      (insert "cd ~/workspace/documentary/apps/order/bin/events-faker/ && npm run dev")
+      (eshell-send-input))
+    (let ((eshell-buffer-name "od:acl"))
+      (eshell)
+      (rename-buffer eshell-buffer-name)
+      (insert "cd ~/workspace/documentary/apps/order && npm run worker:acl:dev")
+      (eshell-send-input))
+    (let ((eshell-buffer-name "od:documentary"))
+      (eshell)
+      (rename-buffer eshell-buffer-name)
+      (insert "cd ~/workspace/documentary/apps/order && npm run worker:documentary:dev")
+      (eshell-send-input))
+    (let ((eshell-buffer-name "od:init-history"))
+      (eshell)
+      (rename-buffer eshell-buffer-name)
+      (insert "cd ~/workspace/documentary/apps/order && npm run worker:init-history:dev")
+      (eshell-send-input))
+    (let ((eshell-buffer-name "od:shipping"))
+      (eshell)
+      (rename-buffer eshell-buffer-name)
+      (insert "cd ~/workspace/documentary/apps/order && npm run worker:shipping:dev")
+      (eshell-send-input))
+    (let ((eshell-buffer-name "od:order"))
+      (eshell)
+      (rename-buffer eshell-buffer-name)
+      (insert "cd ~/workspace/documentary/apps/order && npm run worker:order:dev")
+      (eshell-send-input))
+    (let ((eshell-buffer-name "od:jobs"))
+      (eshell)
+      (rename-buffer eshell-buffer-name)
+      (insert "cd ~/workspace/documentary/apps/order && npm run worker:jobs:dev")
+      (eshell-send-input))
+    (let ((eshell-buffer-name "od:document:store"))
+      (eshell)
+      (rename-buffer eshell-buffer-name)
+      (insert "cd ~/workspace/documentary/apps/documentary && npm run dev:command-worker")
+      (eshell-send-input))
+    (let ((eshell-buffer-name "od:api"))
+      (eshell)
+      (rename-buffer eshell-buffer-name)
+      (insert "cd ~/workspace/documentary/apps/order && npm run dev")
+      (eshell-send-input)))
+
   (defun laarakus/git-branch ()
     "Get the current Git branch using vc-mode."
     (let ((backend (vc-backend buffer-file-name)))
@@ -32,6 +146,7 @@
 #+end_src
 ** bindings
 #+Begin_src emacs-lisp
+  (global-set-key (kbd "C-c C-x i") 'laarakus/describe-at-point)
   (global-set-key (kbd "C-c C-c") 'comment-or-uncomment-region)
   (global-set-key (kbd "M-p") 'text-scale-increase)
   (global-set-key (kbd "M-m") 'text-scale-decrease)
@@ -51,7 +166,7 @@
   (icomplete-mode -1)
   (electric-pair-mode 1)
   (delete-selection-mode t)
-  (global-auto-revert-mode t)
+  (global-auto-revert-mode 1)
 #+end_src
 ** visual
 #+Begin_src emacs-lisp
@@ -119,6 +234,7 @@
 #+end_src
 ** eshell
 #+begin_src emacs-lisp
+  (setq kill-buffer-query-functions (delq 'process-kill-buffer-query-function kill-buffer-query-functions))
   (add-hook 'eshell-mode-hook (lambda () (setenv "PAGER" "cat") (setenv "EDITOR" "emacsclient")))
 #+end_src
 ** dired
@@ -143,6 +259,7 @@
         ibuffer-show-empty-filter-groups nil
         ibuffer-saved-filter-groups
         (quote (("default"
+                 ("eshell" (mode . eshell-mode))
                  ("dired" (mode . dired-mode))
                  ("web" (or
                          (mode . typescript-ts-mode)
@@ -173,17 +290,22 @@
           (elisp "https://github.com/Wilfred/tree-sitter-elisp")
           (html "https://github.com/tree-sitter/tree-sitter-html")
           (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+          (yaml "https://github.com/ikatyang/tree-sitter-yaml")
           (json "https://github.com/tree-sitter/tree-sitter-json")
           (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
           (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
           ))
-  ;;;(mapc #'treesit-install-language-grammar (mapcar #'car treesit-language-source-alist))
+;;; (mapc #'treesit-install-language-grammar (mapcar #'car treesit-language-source-alist))
 #+end_src
 ** typescript-ts-mode
 #+begin_src emacs-lisp
   (use-package typescript-ts-mode
+    :bind (("C-c C-c" . comment-or-uncomment-region)
+           ("C-c C-x d" . lsp-goto-type-definition)
+           ("C-c C-x i" . lsp-goto-implementation))
     :straight (:type built-in)
     :mode (("\\.ts" . typescript-ts-mode)
+           ("\\.js" . js-ts-mode)
            ("\\.json" . json-ts-mode)))
 #+end_src
 ** org-mode
@@ -215,37 +337,47 @@
     :config
     (progn
       (load-theme 'zenburn t)))
+  ;; (use-package dracula-theme
+  ;;   :straight t
+  ;;   :config
+  ;;   (progn
+  ;;     (load-theme 'dracula t)))
+
 #+end_src
 ** lsp-mode
 #+begin_src emacs-lisp
-  (use-package lsp-mode
-    :straight t
-    :diminish
-    :hook ((typescript-ts-mode . lsp-mode)
-           (web-mode . lsp-mode))
-    :config (progn
-              (setq lsp-log nil
-                    lsp-restart 'auto-restart
-                    lsp-javascript-suggest-auto-imports nil
-                    lsp-lens-enable nil
-                    lsp-clients-typescript-log-verbosity "verbose"
-                    lsp-eldoc-enable-hover nil
-                    lsp-typescript-surveys-enabled nil
-                    lsp-typescript-update-imports-on-file-move-enabled "never"
-                    lsp-typescript-format-enable nil
-                    lsp-javascript-format-enable nil
-                    lsp-modeline-diagnostics-enable nil
-                    lsp-modeline-code-actions-enable nil
-                    lsp-headerline-breadcrumb-enable nil)))
-  (use-package lsp-ui
-    :after lsp-mode
-    :straight t
-    :commands lsp-ui-mode
-    :config
-    (progn
-      (setq lsp-ui-sideline-enable nil
-            lsp-ui-doc-show-with-mouse nil
-            lsp-ui-doc-show-with-cursor t)))
+    (use-package lsp-mode
+      :straight t
+      :diminish
+      :hook ((typescript-ts-mode . lsp-deferred)
+             (typescript-ts-mode . hs-minor-mode)
+             (web-mode . lsp-deferred))
+      :config
+      (progn
+        (setq lsp-ui-doc-enable t)
+        (setq lsp-eldoc-hook nil)
+        (setq lsp-log nil
+              lsp-restart 'auto-restart
+              lsp-clients-typescript-prefer-use-project-ts-server t
+              lsp-javascript-suggest-auto-imports nil
+              lsp-lens-enable nil
+              lsp-clients-typescript-log-verbosity "verbose"
+              lsp-typescript-surveys-enabled nil
+              lsp-typescript-update-imports-on-file-move-enabled "never"
+              lsp-typescript-format-enable nil
+              lsp-javascript-format-enable nil
+              lsp-modeline-diagnostics-enable nil
+              lsp-modeline-code-actions-enable nil
+              lsp-headerline-breadcrumb-enable nil)))
+    (use-package lsp-ui
+      :after lsp-mode
+      :straight t
+      :commands lsp-ui-mode
+      :config
+      (progn
+        (setq lsp-ui-sideline-enable nil
+              lsp-ui-doc-show-with-mouse nil
+              lsp-ui-doc-show-with-cursor t)))
 #+end_src
 ** alpheleia
 #+begin_src emacs-lisp
@@ -253,8 +385,9 @@
     :straight (alpheleia-formatters :host github
                                     :repo "radian-software/apheleia")
     :diminish
-    :config (progn
-              (apheleia-global-mode +1)))
+    :config
+    (progn
+      (apheleia-global-mode +1)))
 #+end_src
 
 ** flycheck
@@ -281,18 +414,6 @@
     :straight t
     :after org-mode
     :hook ((org-mode . (lambda () (org-bullets-mode nil)))))
-#+end_src
-** yasnippet
-#+begin_src emacs-lisp
-  (use-package yasnippet
-    :straight t
-    :after org-mode
-    :config (progn
-              (yas-global-mode t)
-              ))
-  (use-package yasnippet-snippets
-    :straight t
-    :after yasnippet)
 #+end_src
 ** ispell
 #+begin_src emacs-lisp
@@ -427,7 +548,7 @@
   (use-package restclient
     :after company
     :straight t
-    :mode (("\\.rest" . restclient-mode)))
+    :mode (("\\.rest" . restclient-mode) ("\\.http" . restclient-mode)))
 #+end_src
 ** company
 #+begin_src emacs-lisp
@@ -436,7 +557,9 @@
     :straight t
     :hook ((restclient-mode . (lambda ()
                                 (company-mode 1)
-                                (company-restclient 1)))))
+                                (company-restclient 1))))
+    :config
+    (progn (setq completion-ignore-case t)))
   (use-package company-box
     :diminish
     :straight t
@@ -452,7 +575,6 @@
            ("\\.tsx" . web-mode)
            ("\\.jsx" . web-mode)
            ("\\.css$" . web-mode))
-    :bind (("C-c C-c" . web-mode-comment-or-uncomment))
     :config
     (progn
       (setq web-mode-markup-indent-offset 2
@@ -492,4 +614,54 @@
                            ("terminfo/65" "terminfo/65/*")
                            ("integration" "integration/*")
                            (:exclude ".dir-locals.el" "*-tests.el"))))
+#+end_src
+** jest-test-mode
+#+begin_src emacs-lisp
+  (use-package jest-test-mode
+    :straight t
+    :hook ((typescript-ts-mode . jest-test-mode)))
+#+end_src
+** general
+#+begin_src emacs-lisp
+  (use-package general
+    :straight t)
+#+end_src
+** mustache
+#+begin_src emacs-lisp
+  (use-package mustache-mode
+    :straight t)
+#+end_src
+** pdf-tools
+#+begin_src emacs-lisp
+  (use-package pdf-tools
+    :straight t)
+#+end_src
+** dap-mode
+#+begin_src emacs-lisp
+      (use-package dap-mode
+        :straight t
+        :after lsp-mode general
+        ;; Uncomment the config below if you want all UI panes to be hidden by default!
+        :custom
+        (lsp-enable-dap-auto-configure nil)
+        :config
+        (dap-ui-mode 1)
+        :config
+        (progn
+          (require 'dap-node)
+          (dap-node-setup)
+          ;; Bind `C-c l d` to `dap-hydra` for easy access
+          (general-define-key
+           :keymaps 'lsp-mode-map
+           :prefix lsp-keymap-prefix
+           "d" '(dap-hydra t :wk "debugger"))))
+      ;; (use-package dap-mode-launch-json
+      ;;   :straight (dap-mode-launch-json :host github
+      ;;                       :repo "nbfalcon/dap-mode-launch-json")
+  ;;  )
+#+end_src
+** dotenv-mode
+#+begin_src emacs-lisp
+  (use-package dotenv-mode
+    :straight t)
 #+end_src
